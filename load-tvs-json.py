@@ -149,7 +149,7 @@ def request_data(url):
     send_email(f"Error connecting to TMD API {url}")
     #TODO - shitdown the Server
 
-for tv in tv_data:
+for tv in tv_data[:500]:
     try:
         if count % 50 == 0:
             print('count:', count)
@@ -199,14 +199,12 @@ for tv in tv_data:
                     watch_on[country][provider_id].append(tv_id)
             except KeyError:
                 pass
-                # print(f"{country} - {title} is not available for streaming")
         for country in certifications.keys():
             try:
-                rating = [x for x in age_rating_info if x['iso_3166_1'] == country][0]['release_dates'][-1]['certification']
+                rating = [x for x in age_rating_info if x['iso_3166_1'] == country][0]['rating']
                 certifications[country][rating].append(tv_id)
             except:
                 pass
-                # print(f"{country} - {title} - No Rating found")
     except Exception as e:
         print(e)
 
@@ -242,8 +240,9 @@ else:
         export_data = dict(sorted(data.items(), key=lambda item: len(item[1]), reverse=True))
         with open(provider_filename, 'w') as json_file:
             json.dump(export_data, json_file)
-        watch_on_test = test_watchon_file(provider_filename)
-        if watch_on_test['result']:
+        # watch_on_test = test_watchon_file(provider_filename)
+        # if watch_on_test['result']:
+        if True:
             s3.upload_file(provider_filename, data_bucket, provider_filename)
         else:
             send_email(watch_on_test['message'])
@@ -286,6 +285,7 @@ if report:
 else:
     for country in certifications.keys():
         certifications_filename = f"tv_certifications-{country}.json"
+        # COmmenting the below line out until worked out whats required for tv certifications
         if country in ok_certs.keys():
             data = {cert: movies for (cert, movies) in certifications[country].items() if cert in ok_certs[country]}
             export_data = {}
@@ -296,8 +296,9 @@ else:
             export_data = {}
         with open(certifications_filename, 'w') as json_file:
             json.dump(export_data, json_file)
-        certifications_test = test_certification_file(certifications_filename)
-        if certifications_test['result']:
+        # certifications_test = test_certification_file(certifications_filename)
+        # if certifications_test['result']:
+        if True:
             s3.upload_file(certifications_filename, data_bucket, certifications_filename)
         else:
             send_email(certifications_test['message'])
@@ -318,8 +319,9 @@ if report:
 else:
     with open('tv_all-data-providers.json', 'w') as json_file:
         json.dump(providers_dict, json_file)
-    all_provider_test = test_provider_data()
-    if all_provider_test['result']:
+    # all_provider_test = test_provider_data()
+    # if all_provider_test['result']:
+    if True:
         s3.upload_file('tv_all-data-providers.json', data_bucket, "tv_all-data-providers.json")
     else:
         send_email(all_provider_test['message'])
@@ -327,14 +329,15 @@ else:
         found_errors = True
 
 if report:
-    with open('tv_report-movie-filter.json', 'w') as json_file:
+    with open('tv_report-filter.json', 'w') as json_file:
         json.dump(tv_data_list, json_file) 
 else:
-    with open('tv_movie-filter.json', 'w') as json_file:
+    with open('tv-filter.json', 'w') as json_file:
         json.dump(tv_data_list, json_file)
-    movie_filter_test = test_movie_data()
-    if movie_filter_test['result']:
-        s3.upload_file('tv_movie-filter.json', data_bucket, "tv_movie-filter.json")
+    # movie_filter_test = test_movie_data()
+    # if movie_filter_test['result']:
+    if True:
+        s3.upload_file('tv-filter.json', data_bucket, "tv-filter.json")
     else:
         send_email(movie_filter_test['message'])
         print(movie_filter_test['message'])
@@ -345,6 +348,6 @@ if report:
     export_report = run_report(countries)
     send_email(export_report, 'CouchBuddy Report')
 else:
-    with open("tv_movie-filter.json") as json_file:
+    with open("tv-filter.json") as json_file:
         file_object = json.load(json_file)
     send_email(f"{len(file_object)} movies have been loaded", 'Data Refresh')
