@@ -9,11 +9,11 @@ import json
 import datetime
 import boto3
 import os
-from tests import test_genre_file, test_watchon_file, test_certification_file, test_provider_data, test_movie_data
-from report import run_report
+from tests_tv import test_genre_file, test_watchon_file, test_certification_file, test_provider_data, test_movie_data
+from tv_report import run_report
 report = False
 
-def send_email(message, subject = "Alert from CouchBuddy"):
+def send_email(message, subject = "Alert from CouchBuddy TV"):
     SENDER = "Couch Buddy TV Alert <alert@couchbuddy.info>"
     RECIPIENT = "pwilson802@gmail.com"
     AWS_REGION = "us-east-1"
@@ -43,7 +43,7 @@ def send_email(message, subject = "Alert from CouchBuddy"):
 
 
 ### Create the JSON File and movie_data ###
-minimum_popularity = 4
+minimum_popularity = 2.3
 temp_zip = "tv-export.gz"
 json_file = "tv-export.json"
 tv_data = []
@@ -114,7 +114,7 @@ def check_tv_details(overview, image, title, release_date, vote_average, vote_co
     if type(vote_count) != int:
         print(f"{title} - vote_count is not an integer")
         return "not valid"
-    if vote_count < 14:
+    if vote_count < 11:
         print(f"{title} - vote count is too low")
         return "not valid"
     if type(tv_genres) != list:
@@ -128,7 +128,10 @@ def check_tv_details(overview, image, title, release_date, vote_average, vote_co
         return "not valid"     
     if seasons < 1:
         print(f"{title} - There is less than 1 season")
-        return "not valid"  
+        return "not valid"
+    if len(release_date.split("-")) != 3:
+        print(f"{title} - The release data is not valie")
+        return "not valid"
     ## TODO - Add a test for status in a list of options
     return 'valid'
     
@@ -149,7 +152,7 @@ def request_data(url):
     send_email(f"Error connecting to TMD API {url}")
     #TODO - shitdown the Server
 
-for tv in tv_data[:500]:
+for tv in tv_data:
     try:
         if count % 50 == 0:
             print('count:', count)
@@ -240,9 +243,8 @@ else:
         export_data = dict(sorted(data.items(), key=lambda item: len(item[1]), reverse=True))
         with open(provider_filename, 'w') as json_file:
             json.dump(export_data, json_file)
-        # watch_on_test = test_watchon_file(provider_filename)
-        # if watch_on_test['result']:
-        if True:
+        watch_on_test = test_watchon_file(provider_filename)
+        if watch_on_test['result']:
             s3.upload_file(provider_filename, data_bucket, provider_filename)
         else:
             send_email(watch_on_test['message'])
@@ -250,27 +252,17 @@ else:
             found_errors = True
 
 ok_certs = {
-    'US': ['G', 'PG', 'PG-13', 'R', 'NC-17'], 
-    'CA': ['G', 'PG', '14A', '18A'], 
-    'AU': ['G', 'PG', 'M', 'MA15+', 'R18+'], 
-    'DE': ['0', '6', '12', '16', '18'], 
-    'FR': ['U', '10', '12', '16', '18'], 
-    'NZ': ['G', 'PG','13', '15', 'M', '16', '18'], 
-    'IN': ['U', 'UA', 'A'], 
-    'GB': ['U', 'PG', '12A', '12', '15', '18'], 
-    'NL': ['AL', '6', '9', '12', '16'], 
-    'BR': ['L', '10', '12', '14', '16', '18'], 
-    'FI': ['S', 'K-7', 'K-12', 'K-16', 'K-18'], 
-    'ES': ['APTA', '7', '12', '16', '18'], 
-    'PT': ['M/3', 'M/6', 'M/12', 'M/14', 'M/16', 'M/18'], 
-    'SE': ['Btl', '7', '11', '15'], 
-    'DK': ['A', '7', '11', '15'], 
-    'NO': ['A', '6', '9', '12', '15', '18'], 
-    'HU': ['KN', '6', '12', '16', '18', 'X'], 
-    'LT': ['V', 'N-7', 'N-13', 'N-16', 'N-18'], 
-    'RU': ['0+', '6+', '12+', '16+', '18+'], 
-    'PH': ['G', 'PG', 'R-13', 'R-16', 'R-18'], 
-    'IT': ['T', 'VM14', 'VM18']
+'AU': ['C','G','PG','M','MA15+','R18+'],
+'BR': ['L','10','12','14','16','18'],
+'CA': ['C','C8','G','PG','14+','18+'],
+'DE': ['0','6','12','16','18'],
+'ES': ['Infantil','TP','7','10','12','13','16','18'],
+'FR': ['NR','10','12','16','18'],
+'GB': ['U','PG','12A','12','15','18'],
+'NL': ['AL','6','9','12','16'],
+'RU': ['0+','6+','12+','18+','16+'],
+'US': ['TV-Y','TV-Y7','TV-G','TV-PG','TV-14','PG-13','TV-MA'],
+'KR': ['ALL','7','12','15','19']
 }
 #  Upload certifications for each country
 if report:
@@ -296,9 +288,8 @@ else:
             export_data = {}
         with open(certifications_filename, 'w') as json_file:
             json.dump(export_data, json_file)
-        # certifications_test = test_certification_file(certifications_filename)
-        # if certifications_test['result']:
-        if True:
+        certifications_test = test_certification_file(certifications_filename)
+        if certifications_test['result']:
             s3.upload_file(certifications_filename, data_bucket, certifications_filename)
         else:
             send_email(certifications_test['message'])
@@ -319,9 +310,8 @@ if report:
 else:
     with open('tv_all-data-providers.json', 'w') as json_file:
         json.dump(providers_dict, json_file)
-    # all_provider_test = test_provider_data()
-    # if all_provider_test['result']:
-    if True:
+    all_provider_test = test_provider_data()
+    if all_provider_test['result']:
         s3.upload_file('tv_all-data-providers.json', data_bucket, "tv_all-data-providers.json")
     else:
         send_email(all_provider_test['message'])
@@ -350,4 +340,4 @@ if report:
 else:
     with open("tv-filter.json") as json_file:
         file_object = json.load(json_file)
-    send_email(f"{len(file_object)} movies have been loaded", 'Data Refresh')
+    send_email(f"{len(file_object)} TV Shows have been loaded", 'Data Refresh')

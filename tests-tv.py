@@ -4,107 +4,95 @@ import re
 
 
 
-expected_genres = ['Crime', 'Comedy', 'Adventure', 'Action', 'Science Fiction', 'Animation', 'Family', 'Drama', 'Romance', 'Mystery', 'Fantasy', 'Thriller', 'War', 'Music', 'Western', 'History', 'Horror', 'Documentary']
+expected_genres = ["Animation","Comedy","Kids","Action & Adventure","Sci-Fi & Fantasy","Reality","Drama","Crime","Mystery","Soap","Family","Documentary","News","Talk","War & Politics","Western","Romance"]
 expected_genre_count = {
-	"Drama": 7000,
-	"Romance": 2000,
-	"Crime": 1500,
-	"Comedy": 5000,
-	"Action": 3000,
-	"Thriller": 3500,
-	"Adventure": 1500,
-	"Science Fiction": 1200,
-	"Animation": 900,
-	"Family": 1000,
-	"Mystery": 1000,
-	"Horror": 2000,
-	"Fantasy": 1000,
-	"Documentary": 300,
-	"War": 400,
-	"Music": 300,
-	"Western": 200,
-	"History": 400,
-	"TV Movie": 200,
+    "Animation": 1000,
+    "Comedy": 1300,
+    "Kids": 100,
+    "Action & Adventure": 700,
+    "Sci-Fi & Fantasy": 700,
+    "Reality": 90,
+    "Drama": 1400,
+    "Crime": 60,
+    "Mystery": 270,
+    "Soap": 40,
+    "Family": 140,
+    "Documentary": 150,
+    "News": 5,
+    "Talk": 25,
+    "War & Politics": 50,
+    "Western": 30,
+    "Romance": 10,
 	}
 
 ok_certs = {
-    'US': ['G', 'PG-13', 'R', 'NC-17', 'PG'], 
-    'CA': ['18A', 'G', 'PG', '14A'], 
-    'AU': ['G', 'PG', 'M', 'MA15+', 'R18+'], 
-    'DE': ['0', '6', '12', '16', '18'], 
-    'FR': ['U', '12', '10', '16', '18'], 
-    'NZ': ['M', '13', '15', 'G', 'PG', '16', '18'], 
-    'IN': ['U', 'UA', 'A'], 
-    'GB': ['15', 'U', 'PG', '12A', '12', '18'], 
-    'NL': ['AL', '6', '9', '12', '16'], 
-    'BR': ['L', '10', '12', '14', '16', '18'], 
-    'FI': ['S', 'K-7', 'K-12', 'K-16', 'K-18'], 
-    'ES': ['APTA', '7', '12', '16', '18'], 
-    'PT': ['M/3', 'M/6', 'M/12', 'M/14', 'M/16', 'M/18'], 
-    'SE': ['Btl', '7', '11', '15'], 
-    'DK': ['A', '7', '11', '15'], 
-    'NO': ['A', '6', '9', '12', '15', '18'], 
-    'HU': ['KN', '6', '12', '16', '18'], 
-    'LT': ['V', 'N-7', 'N-13', 'N-16', 'N-18'], 
-    'RU': ['0+', '6+', '12+', '16+', '18+'], 
-    'PH': ['G', 'PG', 'R-13', 'R-16', 'R-18'], 
-    'IT': ['T', 'VM14', 'VM18'],
+'AU': ['C','G','PG','M','MA15+','R18+'],
+'BR': ['L','10','12','14','16','18'],
+'CA': ['C','C8','G','PG','14+','18+'],
+'DE': ['0','6','12','16','18'],
+'ES': ['Infantil','TP','7','10','12','13','16','18'],
+'FR': ['NR','10','12','16','18'],
+'GB': ['U','PG','12A','12','15','18'],
+'NL': ['AL','6','9','12','16'],
+'RU': ['0+','6+','12+','18+','16+'],
+'US': ['TV-Y','TV-Y7','TV-G','TV-PG','TV-14','PG-13','TV-MA'],
+'KR': ['ALL','7','12','15','19']
 }
 
-no_certs = ['AR','AT','BE','CH','CL','CO','CZ','EC','EE','GR','ID','IE','JP','LV','MX','MY','PE','PL','RO','SG','TH','TR','VE','ZA','KR']
+no_certs = ['AR','AT','BE','CH','CL','CO','CZ','EC','EE','GR','ID','IE','JP','LV','MX','MY','PE','PL','RO','SG','TH','TR','VE','ZA','NZ','IN','FI','PT','SE','DK','NO','HU','LT','PH','IT']
 
 expected_movie_number = {
-'AR': 4000,
-'AT': 4000,
-'AU': 3000,
-'BE': 3000,
-'BR': 2000,
-'CA': 700,
+'AR': 1000,
+'AT': 1000,
+'AU': 1500,
+'BE': 800,
+'BR': 900,
+'CA': 1300,
 'CH': 700,
-'CL': 3000,
-'CO': 3000,
-'CZ': 1000,
-'DE': 6000,
-'DK': 1000,
-'EC': 1000,
-'EE': 1000,
-'ES': 1000,
-'FI': 300,
-'FR': 3000,
-'GB': 5000,
-'GR': 1000,
-'HU': 800,
-'ID': 2000,
-'IE': 2000,
-'IN': 200,
-'IT': 1000,
-'JP': 2000,
-'LT': 200,
-'LV': 1000,
-'MX': 2000,
-'MY': 5,
-'NL': 2000,
-'NO': 200,
-'NZ': 100,
-'PE': 2000,
-'PH': 20,
-'PL': 1000,
-'PT': 1000,
-'RO': 1000,
-'RU': 1000,
-'SE': 1000,
-'SG': 2000,
-'TH': 1000,
-'TR': 1000,
-'US': 9000,
-'VE': 2000,
-'ZA': 1000,
-'KR': 2000,
+'CL': 700,
+'CO': 900,
+'CZ': 400,
+'DE': 900,
+'DK': 900,
+'EC': 700,
+'EE': 600,
+'ES': 900,
+'FI': 900,
+'FR': 1000,
+'GB': 1000,
+'GR': 400,
+'HU': 600,
+'ID': 600,
+'IE': 1000,
+'IN': 600,
+'IT': 800,
+'JP': 800,
+'LT': 600,
+'LV': 600,
+'MX': 800,
+'MY': 300,
+'NL': 800,
+'NO': 800,
+'NZ': 1000,
+'PE': 700,
+'PH': 500,
+'PL': 700,
+'PT': 700,
+'RO': 600,
+'RU': 700,
+'SE': 700,
+'SG': 800,
+'TH': 600,
+'TR': 600,
+'US': 2000,
+'VE': 700,
+'ZA': 600,
+'KR': 700,
 }
 
 def test_genre_file():
     try:
-        with open('genres.json') as json_file:
+        with open('tv_genres.json') as json_file:
             genres_obj = json.load(json_file)
         genre_keys = genres_obj.keys()
         # Checking the object has the correct genres
@@ -123,7 +111,7 @@ def test_genre_file():
             for movie in genre_list:
                 all_genres_list.append(movie)
         # check the object has more than 20,000 movies in it
-        if len(all_genres_list) < 20000:
+        if len(all_genres_list) < 5000:
             movie_count = len(all_genres_list)
             return {'result': False, 'message': f"Genre - The genres json file does not have enough movies in it.  it only has {movie_count}"}
         return {'result': True, 'message': "file OK"}
@@ -191,7 +179,7 @@ def test_certification_file(filename):
 
 
 def test_provider_data():
-    with open("all-data-providers.json") as json_file:
+    with open("tv_all-data-providers.json") as json_file:
         file_object = json.load(json_file)
     providers = file_object.keys()
     provider_count = len(providers)
@@ -215,18 +203,24 @@ def test_movie_data():
     with open("movie-filter.json") as json_file:
         file_object = json.load(json_file)
     movie_count = len(file_object)
-    if movie_count < 17000:
-        return {'result': False, 'message': f"Movie Data - count is too low, the count is {movie_count}"}
+    if movie_count < 4000:
+        return {'result': False, 'message': f"TV Data - count is too low, the count is {movie_count}"}
     for movie in file_object:
         movie_id = movie['id']
         runtime = movie['r']
         vote = movie['v']
+        seasons = movie['se']
+        release_date = movie['d']
         if type(movie_id) != int:
-             return {'result': False, 'message': f"Movie Data - ID is not an integer - {movie} "}
+             return {'result': False, 'message': f"TV Data - ID is not an integer - {movie} "}
         if runtime < 25:
-            return {'result': False, 'message': f"Movie Data - Runtime is too short - {movie} "}
+            return {'result': False, 'message': f"TV Data - Runtime is too short - {movie} "}
         if (type(vote) != int) and (type(vote) != float):
-            return {'result': False, 'message': f"Movie Data - Vote is not a number - {movie} "}
+            return {'result': False, 'message': f"TV Data - Vote is not a number - {movie} "}
+        if type(seasons) != int:
+            return {'result': False, 'message': f"TV Data - seasons is not an integer - {movie} "}
+        if len(release_date.split("-")) != 3:
+            return {'result': False, 'message': f"TV Data - release Date is not the correct format - {movie} "}
     return {'result': True, 'message': "file OK"}
     
     

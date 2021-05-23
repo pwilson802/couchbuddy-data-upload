@@ -132,6 +132,9 @@ def check_movie_details(overview, image, title, release_date, tagline, runtime, 
     if len(movie_genres) < 1:
         print(f"{title} - movie_genres is empty")
         return "not valid"
+    if len(release_date.split("-")) != 3:
+        print(f"{title} - The release data is not valie")
+        return "not valid"
     return 'valid'
     
 
@@ -151,7 +154,7 @@ def request_data(url):
     send_email(f"Error connecting to TMD API {url}")
     #TODO - shitdown the Server
 
-for movie in movie_data:
+for movie in movie_data[:500]:
     try:
         if count % 50 == 0:
             print('count:', count)
@@ -182,7 +185,8 @@ for movie in movie_data:
             continue
         movie_object = {'id': movie_id,
                             "r": runtime,
-                            "v": vote_average,}
+                            "v": vote_average,
+                            "d": release_date}
         movie_data_list.append(movie_object)
         for genre in movie_genres:
             genres[genre].append(movie_id)
@@ -278,7 +282,7 @@ if report:
         # if country in ok_certs.keys():
         #     export_data = {cert: movies for (cert, movies) in certifications[country].items() if cert in ok_certs[country]}
         # else:
-        export_data = certifications[country]
+            export_data = certifications[country]
         with open(certifications_filename, 'w') as json_file:
             json.dump(export_data, json_file)
 else:
