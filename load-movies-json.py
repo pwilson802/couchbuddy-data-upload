@@ -154,7 +154,7 @@ def request_data(url):
     send_email(f"Error connecting to TMD API {url}")
     #TODO - shitdown the Server
 
-for movie in movie_data[:500]:
+for movie in movie_data:
     try:
         if count % 50 == 0:
             print('count:', count)
@@ -282,7 +282,7 @@ if report:
         # if country in ok_certs.keys():
         #     export_data = {cert: movies for (cert, movies) in certifications[country].items() if cert in ok_certs[country]}
         # else:
-            export_data = certifications[country]
+        export_data = certifications[country]
         with open(certifications_filename, 'w') as json_file:
             json.dump(export_data, json_file)
 else:
